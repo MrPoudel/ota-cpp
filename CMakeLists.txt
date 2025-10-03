@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.28)
 project(ota-cpp LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -51,7 +51,12 @@ add_library(ota
 )
 
 target_include_directories(ota PUBLIC include)
+target_link_libraries(ota PUBLIC nlohmann_json::nlohmann_json)
 
+
+# ---------------------------
+# FetchContent for gtest
+# ---------------------------
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -59,7 +64,25 @@ FetchContent_Declare(
   DOWNLOAD_EXTRACT_TIMESTAMP true
 )
 
+# Copy test JSON files to the build directory for the test executable
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/qemu-test/manifests/valid.json
+    ${CMAKE_CURRENT_BINARY_DIR}/tests/valid.json
+    COPYONLY
+)
+
 FetchContent_MakeAvailable(googletest)
+
+# ---------------------------
+# FetchContent for nlohmann/json
+# ---------------------------
+FetchContent_Declare(
+    json
+    URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.2.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP true
+)
+
+FetchContent_MakeAvailable(json)
 
 # Unit tests
 enable_testing()

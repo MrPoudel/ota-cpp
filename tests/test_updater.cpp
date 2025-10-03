@@ -1,9 +1,10 @@
-#include "ota/updater.h"
 #include <gtest/gtest.h>
+#include "ota/updater.h"
 
-TEST(UpdaterTest, Dummy) {
-    ota::Updater updater;
-    EXPECT_TRUE(updater.applyUpdateFromManifest("dummy.json"));
-    // EXPECT_FALSE(updater.applyUpdateFromManifest("dummy.json"));
+TEST(UpdaterTest, BasicConfig) {
+    ota::UpdaterConfig cfg{"A", "B", "pub.pem"};
+    ota::Updater updater(cfg);
 
+    EXPECT_EQ(updater.currentSlot(), "A");
+    EXPECT_EQ(updater.candidateSlot(), "B");
 }

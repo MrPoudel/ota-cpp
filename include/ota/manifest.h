@@ -2,9 +2,14 @@
 #include <string>
 
 namespace ota {
-struct Manifest {
-    std::string version;
-    std::string image;
-    std::string signature;
+
+class Manifest {
+public:
+    bool loadFromFile(const std::string& path);
+    std::string version() const;
+
+private:
+    std::string version_;
 };
-}
+
+} // namespace ota
