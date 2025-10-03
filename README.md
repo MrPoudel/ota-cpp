@@ -1,4 +1,6 @@
 
+[![codecov](https://codecov.io/gh/MrPoudel/ota-cpp/branch/develop/graph/badge.svg?token=d8dffb55-1cab-4381-af35-b7835e9f561e)](https://codecov.io/gh/MrPoudel/ota-cpp)
+
 ## Lightweight Secure OTA Update Framework (OTA-CPP)
 
 OTA-CPP is a C++ project that provides a framework for implementing Over-the-Air (OTA) updates in embedded systems and IoT devices. It focuses on reliability, lightweight design, and cross-platform support for resource-constrained environments.
@@ -63,3 +65,4 @@ This compiles the OTA library and the CLI tool otactl.
 
 #### Run the CLI Tool
 ```./tools/otactl/otactl ../qemu-test/manifests/valid.json```
+
