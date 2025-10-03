@@ -71,3 +71,15 @@ jobs:
           path: build/coverage-report
         # Uploads the HTML report so it is downloadable from the GitHub Actions UI.
         # Contributors can review the coverage report directly for the PR.
+
+      # Step 7: Upload coverage info to Codecov
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+        # Sends coverage info to Codecov.
+        # Codecov will decorate PRs with coverage changes (circle/badge),
+        # and optionally post inline comments about coverage diff.
+
+      # TODO:
+      # Step 8: Display coverage summary in the logs
