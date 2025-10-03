@@ -5,7 +5,7 @@
 
 OTA-CPP is a C++ project that provides a framework for implementing Over-the-Air (OTA) updates in embedded systems and IoT devices. It focuses on reliability, lightweight design, and cross-platform support for resource-constrained environments.
 
-### Features
+### Features [Not impelemented yet]
 - Firmware Updates – Secure download and installation of firmware images.
 - Delta Updates – Support for partial updates to reduce bandwidth usage.
 - Integrity Checks – Built-in checksum and cryptographic validation of downloaded files.
