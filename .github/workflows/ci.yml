@@ -11,7 +11,8 @@ on:
     branches:
       - develop
   pull_request:
-    branches:
+    branches:  
+
       - develop
 
 # -------------------------
@@ -64,7 +65,7 @@ jobs:
 
       # Step 6: Upload coverage report as artifact
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: build/coverage-report
