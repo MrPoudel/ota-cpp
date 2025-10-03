@@ -1,0 +1,72 @@
+name: CI
+
+# -------------------------
+# Trigger the workflow
+# -------------------------
+# This workflow runs automatically on:
+# 1. Any push to the `develop` branch.
+# 2. Any pull request targeting the `develop` branch.
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+# -------------------------
+# Define jobs
+# -------------------------
+jobs:
+  build-test-coverage:
+    # Runs this job on the latest Ubuntu virtual environment
+    runs-on: ubuntu-latest
+
+    # -------------------------
+    # Steps to execute
+    # -------------------------
+    steps:
+
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        # This clones the repository into the VM.
+        # For PRs, it automatically checks out the source branch of the PR.
+
+      # Step 2: Install dependencies
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          # Install build-essential (gcc, g++), cmake, and lcov for coverage.
+          sudo apt-get install -y build-essential cmake lcov
+
+      # Step 3: Configure project with CMake
+      - name: Configure with CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Coverage
+        # -B build → generates build files in the 'build' folder.
+        # -DCMAKE_BUILD_TYPE=Coverage → enables coverage flags in CMakeLists.txt.
+        # At this point, the project is configured but not yet compiled.
+
+      # Step 4: Build the project
+      - name: Build project
+        run: cmake --build build -- -j$(nproc)
+        # Compiles the library, tests, and CLI tool.
+        # Uses all available CPU cores for faster compilation.
+
+      # Step 5: Run tests and generate coverage
+      - name: Run coverage
+        run: cmake --build build --target coverage
+        # Invokes the custom 'coverage' target from CMakeLists.txt:
+        # 1. Runs unit tests using ctest.
+        # 2. Collects coverage data (.gcda files) with lcov.
+        # 3. Filters out test files and system libraries.
+        # 4. Generates HTML coverage report in build/coverage-report/.
+
+      # Step 6: Upload coverage report as artifact
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: build/coverage-report
+        # Uploads the HTML report so it is downloadable from the GitHub Actions UI.
+        # Contributors can review the coverage report directly for the PR.

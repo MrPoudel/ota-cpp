@@ -1,0 +1,6 @@
+{
+  "version": "1.0",
+  "image": "rootfs_b.img",
+  "signature": "dummy_signature"
+}
+
