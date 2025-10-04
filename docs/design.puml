@@ -1,0 +1,151 @@
+@startuml
+namespace ota {
+
+  class ResultBase
+  class Result<T>
+
+  enum Status {
+    OK
+    VERIFY_FAIL
+    WRITE_FAIL
+    ACTIVATE_FAIL
+    HEALTH_FAIL
+    DOWNLOAD_FAIL
+    PARSE_FAIL
+    CRYPTO_ERROR
+    INVALID_ARGUMENT
+    TIMEOUT
+    INTERNAL_ERROR
+  }
+
+  interface Logger {
+    +log(level: LogLevel, msg: string)
+    +debug(msg: string)
+    +info(msg: string)
+    +warn(msg: string)
+    +error(msg: string)
+  }
+
+  class SimpleStdLogger implements Logger
+
+  enum LogLevel {
+    Debug
+    Info
+    Warn
+    Error
+  }
+
+  interface CryptoBackend {
+    +verifySignature(alg, pubkeyPEM, data, sig)
+    +sha256(data)
+    +loadPublicKeyFromStore(id, outPEM)
+  }
+
+  class CryptoDummy implements CryptoBackend
+
+  interface CryptoKeyStore {
+    +getPublicKey(id: string): Result<string>
+  }
+
+  class FileKeyStore implements CryptoKeyStore
+
+  class Manifest {
+    +version: string
+    +images: vector<ManifestImageEntry>
+    +delta_url: optional<string>
+    +signatures: vector<ManifestSignature>
+    +expires: optional<string>
+    +parseFromJson(jsonText: string)
+    +verifySignatures(backend: CryptoBackend, keystore: CryptoKeyStore)
+    +checkExpiry()
+  }
+
+  class ManifestImageEntry {
+    +type: string
+    +size: uint64
+    +sha256: string
+    +url: string
+    +signed_by: optional<string>
+  }
+
+  class ManifestSignature {
+    +alg: string
+    +sig_b64: string
+    +key_id: optional<string>
+  }
+
+  interface Downloader {
+    +downloadToStream(url, writeCb, progressCb, opts)
+  }
+
+  class FileDownloader implements Downloader
+
+  interface ImageWriter {
+    +open()
+    +write(chunk)
+    +finalize()
+    +abort()
+    +targetDescription()
+  }
+
+  class FileWriter implements ImageWriter
+
+  interface DeltaPatcher {
+    +applyDeltaStream(deltaReadCb, outputWriteCb)
+  }
+
+  interface BootControl {
+    +setActiveSlot(slot)
+    +getActiveSlot()
+    +markSlotUnbootable(slot)
+    +setEnv(key, value)
+    +getEnv(key)
+  }
+
+  interface HealthMonitor {
+    +startMonitoring(cfg, onHealthy, onFail)
+    +stopMonitoring()
+  }
+
+  class Updater {
+    - Impl
+    +applyUpdateFromUrl(manifestUrl, progress, events)
+    +applyUpdateFromManifestText(manifestText, progress, events)
+    +writeImageToInactive(imageStream, progress, events)
+    +triggerRollback()
+    +currentSlot()
+    +candidateSlot()
+  }
+
+  class UpdaterConfig {
+    +activeSlot: string
+    +inactiveSlot: string
+    +crypto: shared_ptr<CryptoBackend>
+    +keystore: shared_ptr<CryptoKeyStore>
+    +downloader: shared_ptr<Downloader>
+    +bootControl: shared_ptr<BootControl>
+    +healthMonitor: shared_ptr<HealthMonitor>
+    +logger: shared_ptr<Logger>
+  }
+
+  Updater --> UpdaterConfig
+  Updater ..> Manifest
+  Updater ..> Downloader
+  Updater ..> ImageWriter
+  Updater ..> CryptoBackend
+  Updater ..> CryptoKeyStore
+  Updater ..> BootControl
+  Updater ..> HealthMonitor
+  Updater ..> Logger
+
+  Manifest --> ManifestImageEntry
+  Manifest --> ManifestSignature
+
+  SimpleStdLogger -up-|> Logger
+  FileKeyStore -up-|> CryptoKeyStore
+  FileWriter -up-|> ImageWriter
+  FileDownloader -up-|> Downloader
+  CryptoDummy -up-|> CryptoBackend
+
+}
+@enduml
